@@ -134,4 +134,4 @@ Tools used:
 
 ## License
 
-[MIT](LICENSE) — do anything you want with the pattern, the schema, or the sample wiki.
+[MIT](LICENSE) 

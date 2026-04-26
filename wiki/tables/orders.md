@@ -35,7 +35,7 @@ One row per placed order. Surrogate key: `id`. No natural business key.
 ## Downstream
 - [[order_items]] FK → `orders.id` (CASCADE on delete).
 - [[payments]] FK → `orders.id` (one order, many payment attempts).
-- [[orders_daily_pipeline]] aggregates this table into `mart.orders_daily`.
+- [[orders_daily_pipeline]] aggregates this table into [[orders_daily|mart.orders_daily]] (via the [[stg_orders]] staging model).
 - Powers [[gmv|GMV]], [[order-lifecycle|order lifecycle]], [[revenue-recognition|revenue recognition]].
 
 ## Notes

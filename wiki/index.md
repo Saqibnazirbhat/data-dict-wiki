@@ -8,9 +8,9 @@ last_updated: 2026-04-26
 Canonical, human-readable documentation for the data stack. See [[CLAUDE|operating manual]] for conventions.
 
 ## Counts
-- Tables: **6**
-- Columns: **40**
-- Pipelines: **2** (both stubs)
+- Tables: **7**
+- Columns: **47**
+- Pipelines: **3** (2 draft, 1 stub)
 - Concepts: **3**
 - Owners: **2**
 
@@ -18,6 +18,7 @@ Canonical, human-readable documentation for the data stack. See [[CLAUDE|operati
 - [[categories]] — Product taxonomy. Self-referential tree.
 - [[order_items]] — Line items inside an order. Price-snapshot at order time.
 - [[orders]] — The cart envelope. One row per placed order.
+- [[orders_daily]] — Daily order rollup mart. One row per `(order_day, currency)`.
 - [[payments]] — Every payment attempt against an order. Signed amounts.
 - [[products]] — Catalog of sellable items. SKU is the natural key.
 - [[users]] — Every person who has ever signed up. PII; soft-deleted.
@@ -76,25 +77,35 @@ Canonical, human-readable documentation for the data stack. See [[CLAUDE|operati
 - [[payments__processor_ref]] — Tokenized processor txn id.
 - [[payments__status]] — `authorized` / `captured` / `failed` / `refunded`.
 
+### orders_daily
+- [[orders_daily__currency]] — ISO 4217; part of natural key.
+- [[orders_daily__gmv_gross_cents]] — Gross GMV (placement-time, no refunds).
+- [[orders_daily__order_day]] — UTC day, part of natural key.
+- [[orders_daily__orders_delivered]] — Count of `delivered` orders in bucket.
+- [[orders_daily__orders_paid]] — Count of `paid` orders in bucket.
+- [[orders_daily__orders_shipped]] — Count of `shipped` orders in bucket.
+- [[orders_daily__orders_total]] — Sum of paid+shipped+delivered counts.
+
 ## Pipelines
-- [[orders_daily_pipeline]] — Daily aggregation of [[orders]] + [[order_items]] into `mart.orders_daily`. **Stub.**
-- [[payments_reconciliation_dag]] — Nightly reconciliation against processor settlement. **Stub.**
+- [[orders_daily_pipeline]] — Daily aggregation of [[orders]] into [[orders_daily|mart.orders_daily]]. Triggered by [[payments_reconciliation_dag]].
+- [[payments_reconciliation_dag]] — Airflow DAG (06:00 UTC daily). Rebuilds [[orders_daily]], reconciles captured [[payments]] against it, pages oncall on >$5k variance.
+- [[stg_orders]] — dbt staging model wrapping [[orders]]. **Stub** — staging SQL not yet ingested.
 
 ## Concepts
-- [[gmv|GMV]] — Gross Merchandise Value. Two variants (placement vs cash).
+- [[gmv|GMV]] — Gross Merchandise Value. Two contested definitions (placement vs cash); contradiction documented from `raw/slack/2026-04-20-gmv-definition-debate.md`.
 - [[order-lifecycle|Order Lifecycle]] — State machine over [[orders__status]].
 - [[revenue-recognition|Revenue Recognition]] — When/how much revenue gets booked.
 
 ## Owners
-- [[data-platform-team|Data Platform team]] — Warehouse + canonical models.
+- [[data-platform-team|Data Platform team]] — Warehouse + canonical models + pipelines.
 - [[growth-team|Growth team]] — Acquisition + lifecycle; product-side owner of [[users]].
 
 ## Stubs awaiting fill
-- [[orders_daily_pipeline]] — needs dbt model SQL in `raw/pipelines/`.
-- [[payments_reconciliation_dag]] — needs DAG file in `raw/pipelines/`.
+- [[stg_orders]] — needs staging dbt SQL in `raw/pipelines/`.
 
 ## Open questions
+- [[gmv]] — whether the BI dashboard's "GMV" column should be relabelled "Gross GMV" or split. Owner: BI team. No deadline.
 - [[revenue-recognition]] — exact "shipped vs delivered" recognition trigger needs Finance sign-off.
 
 ## Recently updated
-All pages last_updated **2026-04-26** (initial ingest).
+All pages last_updated **2026-04-26**.

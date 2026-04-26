@@ -157,8 +157,9 @@ def main() -> int:
             if age > STALE_DAYS:
                 stale.append((page, age))
 
-        # Check 6: contradictions
-        if "CONTRADICTION:" in body:
+        # Check 6: contradictions. Exempt root pages — log/index describe
+        # the wiki's state and may quote the marker without owning it.
+        if "CONTRADICTION:" in body and page.name not in ROOT_PAGES:
             contradictions.append(page)
 
     # Check 3: orphans (zero inbound links, excluding root pages)

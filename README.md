@@ -46,10 +46,18 @@ data-dict-wiki/
 │   ├── pipelines/      # One page per pipeline / DAG / dbt model
 │   ├── concepts/       # Business concepts (GMV, revenue recognition, …)
 │   └── owners/         # Teams or people responsible for data assets
+├── tools/              # Stdlib-only Python: drift detection + mechanical lint
 └── .obsidian/          # Obsidian vault config — open this folder as a vault
 ```
 
-A worked example is already inside: a realistic e-commerce schema (`raw/schemas/sample_ecommerce.sql`) ingested into **53 wiki pages** — 6 tables, 40 columns, 3 concepts, 2 pipeline stubs, 2 owners, all interlinked.
+A worked example is already inside. Three sources have been ingested:
+
+- `raw/schemas/sample_ecommerce.sql` — a realistic e-commerce schema (users, orders, payments, etc.)
+- `raw/pipelines/orders_daily.sql` — a dbt model that aggregates orders into a daily mart table
+- `raw/pipelines/payments_reconciliation_dag.py` — an Airflow DAG that runs the dbt model and reconciles payments
+- `raw/slack/2026-04-20-gmv-definition-debate.md` — a Slack thread where Finance, BI, and Growth disagree on what "GMV" means
+
+Result: **64 interlinked wiki pages** — 7 tables, 47 columns, 3 pipelines, 3 concepts, 2 owners — including a documented `CONTRADICTION:` on the [`gmv`](wiki/concepts/gmv.md) page that the LLM surfaced from the Slack thread, complete with sources and stakeholder positions.
 
 ## What it looks like
 
@@ -114,6 +122,23 @@ Claude will read it, walk through the key takeaways with you, then create/update
 **4. (Optional) Bring your own LLM.**
 
 This repo uses Claude Code, but the pattern is LLM-agnostic. Rename `CLAUDE.md` to `AGENTS.md` for OpenAI Codex, `.cursorrules` for Cursor, etc. The schema and templates inside don't change.
+
+---
+
+## Tooling
+
+Two stdlib-only Python scripts in `tools/` keep the wiki self-checking. No `pip install` needed.
+
+```bash
+python tools/lint.py          # broken links, missing fields, stub debt, contradictions
+python tools/check-drift.py   # report sources that changed since the wiki cited them
+python tools/check-drift.py --update   # write current source hashes back to frontmatter
+```
+
+- **`lint.py`** runs the six checks documented in `CLAUDE.md` (broken links, missing frontmatter fields, basename collisions, stub debt, stale pages, orphans, unresolved contradictions). Exit `1` on errors, `0` on warnings-only — CI-friendly.
+- **`check-drift.py`** SHA-256s every source file cited in a wiki page's `source_hashes:` frontmatter and reports mismatches. Run `--update` after every ingest to refresh the recorded hashes. The LLM no longer has to remember to maintain these — the script does it.
+
+The ingest workflow in `CLAUDE.md` calls both scripts at the end of every ingest run. Run them yourself any time you want to check the wiki's health.
 
 ---
 

@@ -141,7 +141,7 @@ LLMs don't get bored, don't forget to update a cross-reference, and can touch 15
 
 ## Credits
 
-Built on the **LLM Wiki** pattern. The pattern is intentionally generic — it works for personal knowledge, research, book notes, competitive analysis, anything where you accumulate sources over time. This repo is one instantiation of it for the **data dictionary & lineage** domain.
+The pattern is intentionally **generic** — it works for personal knowledge, research, book notes, competitive analysis, anything where you accumulate sources over time. This repo is one instantiation of it for the **data dictionary & lineage** domain.
 
 Inspired in spirit by Vannevar Bush's [*Memex*](https://en.wikipedia.org/wiki/Memex) (1945) — a personal, curated knowledge store with associative trails between documents. Bush couldn't solve the maintenance problem. The LLM does.
 

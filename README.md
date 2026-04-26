@@ -8,6 +8,27 @@ You curate the sources. The LLM does the bookkeeping.
 
 ---
 
+## How is this different from RAG?
+
+If you've used ChatGPT file uploads, NotebookLM, or any "chat with your docs" tool, you've used RAG. Here's how this is different:
+
+| | RAG | LLM Wiki (this repo) |
+|---|---|---|
+| **What gets stored** | The original files, indexed | Original files **+** a written-out wiki the LLM keeps updated |
+| **What happens when you ask a question** | The LLM searches the files, finds relevant bits, and writes a fresh answer — every single time | The LLM just reads the wiki page that's already written about it |
+| **What happens when you add a new file** | It gets indexed. Nothing else changes. | The LLM reads it, then updates every wiki page it affects, flags contradictions, and adds new links |
+| **Does the knowledge build up over time?** | No — every answer starts from zero | Yes — the wiki gets richer with every file you add |
+
+**The simplest way to think about it:**
+
+> **RAG** is like googling something every time you need it.
+>
+> **The LLM Wiki** is like keeping a notebook — you write things down once, link related notes together, and flip back to it later.
+
+For a data team, this means: instead of asking "what does `orders.status` mean?" and waiting for an LLM to grep through SQL files, you just read [`wiki/columns/orders__status.md`](wiki/columns/orders__status.md) — written, cross-linked, and kept current by the LLM.
+
+---
+
 ## What's in this repo
 
 ```
@@ -35,14 +56,6 @@ A worked example is already inside: a realistic e-commerce schema (`raw/schemas/
 Obsidian's graph view of the wiki after ingesting `sample_ecommerce.sql`. The big hubs are the tables (`orders`, `users`, `products`, `payments`) and the `index` page; smaller satellites are individual columns; the `gmv`, `order-lifecycle`, and `revenue-recognition` concept pages sit between the tables they pull from.
 
 ![Obsidian graph view of the wiki](docs/graph-view.png)
-
----
-
-## The idea in one paragraph
-
-Most LLM + document setups (NotebookLM, ChatGPT file uploads, classic RAG) re-derive knowledge on every query — they search, they retrieve chunks, they synthesize. Nothing accumulates. **The LLM Wiki pattern is different:** the LLM reads each new source *once*, then writes and updates a persistent wiki of markdown pages. Cross-references are already there. Contradictions have already been flagged. The synthesis already reflects everything you've fed it. Each new source makes the wiki *richer*, not just *bigger*.
-
-For a data team, this means: instead of asking "what does `orders.status` mean?" and waiting for an LLM to grep through SQL files, you read [`wiki/columns/orders__status.md`](wiki/columns/orders__status.md) — written, cross-linked, and kept current by the LLM.
 
 ---
 

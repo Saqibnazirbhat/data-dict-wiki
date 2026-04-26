@@ -22,10 +22,16 @@ HASH_LEN = 16  # truncated sha256 — 8 bytes is plenty for drift detection
 
 
 def sha(path: Path) -> str:
+    """SHA-256 of the file with line endings normalized to LF.
+
+    Hashing raw bytes makes Git's autocrlf on Windows look like content
+    drift after a fresh checkout. Normalizing means the hash tracks
+    content, not encoding.
+    """
     h = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
+            h.update(chunk.replace(b"\r\n", b"\n"))
     return h.hexdigest()[:HASH_LEN]
 
 

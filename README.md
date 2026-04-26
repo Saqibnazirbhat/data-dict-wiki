@@ -30,6 +30,12 @@ data-dict-wiki/
 
 A worked example is already inside: a realistic e-commerce schema (`raw/schemas/sample_ecommerce.sql`) ingested into **53 wiki pages** — 6 tables, 40 columns, 3 concepts, 2 pipeline stubs, 2 owners, all interlinked.
 
+## What it looks like
+
+Obsidian's graph view of the wiki after ingesting `sample_ecommerce.sql`. The big hubs are the tables (`orders`, `users`, `products`, `payments`) and the `index` page; smaller satellites are individual columns; the `gmv`, `order-lifecycle`, and `revenue-recognition` concept pages sit between the tables they pull from.
+
+![Obsidian graph view of the wiki](docs/graph-view.png)
+
 ---
 
 ## The idea in one paragraph

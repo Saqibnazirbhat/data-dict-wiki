@@ -1,0 +1,24 @@
+# Obsidian — local workspace state (per-user, noisy)
+.obsidian/workspace*
+.obsidian/cache
+.obsidian/.trash/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE local state
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Tool/runtime artifacts (defensive — not used yet)
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.local

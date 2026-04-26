@@ -4,6 +4,7 @@ name: users.email
 status: draft
 owner: [[growth-team]]
 sources: [raw/schemas/sample_ecommerce.sql]
+source_hashes: {raw/schemas/sample_ecommerce.sql: b081203657f6072f}
 tags: [pii, stable]
 last_updated: 2026-04-26
 ---

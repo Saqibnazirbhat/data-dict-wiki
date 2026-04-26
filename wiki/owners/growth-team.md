@@ -3,6 +3,7 @@ type: owner
 name: Growth Team
 status: draft
 sources: [raw/schemas/sample_ecommerce.sql]
+source_hashes: {raw/schemas/sample_ecommerce.sql: b081203657f6072f}
 tags: [team]
 last_updated: 2026-04-26
 ---

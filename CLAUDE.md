@@ -59,6 +59,7 @@ name: {human-readable name}
 status: stub | draft | reviewed
 owner: [[owner-slug]]            # omit for owner pages themselves
 sources: [raw/schemas/foo.sql, raw/slack/2026-03-12-thread.md]
+source_hashes: {raw/schemas/foo.sql: <16-hex>, raw/slack/...: <16-hex>}  # tooling-managed
 tags: [pii, finance, deprecated, ...]
 last_updated: YYYY-MM-DD
 ---
@@ -68,6 +69,8 @@ last_updated: YYYY-MM-DD
 - `stub` — placeholder; only frontmatter + one-line description.
 - `draft` — populated from at least one source, but unverified or incomplete.
 - `reviewed` — cross-checked against ≥2 sources or explicitly confirmed by an owner in `raw/slack/`.
+
+`source_hashes` is maintained by `tools/check-drift.py`, not by hand. It records the SHA-256 (truncated to 16 hex chars) of each cited source at the time the page was last written. After any ingest, run `python tools/check-drift.py --update` to refresh it. The per-type page templates below omit it for readability — tooling adds it automatically.
 
 ## Page templates
 
@@ -240,6 +243,7 @@ Steps:
 4. **Update `index.md`** — add new pages to the correct section, alphabetized.
 5. **Append to `log.md`** — one entry per ingest run with date, source, summary of pages added/updated, and any contradictions flagged.
 6. **Bump `last_updated`** on every page touched.
+7. **Refresh source hashes** — run `python tools/check-drift.py --update` to write the current SHA of every cited source into the touched pages' frontmatter. Then run `python tools/lint.py` to confirm no broken links or missing fields were introduced.
 
 Hard rules:
 - Never invent column types, owners, or business definitions. If unknown, write `_unknown_` and tag the page `needs-info`.
@@ -261,15 +265,22 @@ Steps:
 
 Trigger: user asks for a lint, or you notice drift during ingest.
 
+**Run the tools first, don't relint by reading every file.** Two scripts in `tools/` enforce all checks below mechanically:
+
+- `python tools/lint.py` — broken links, missing frontmatter, basename collisions, stub debt, stale pages, orphans, contradictions. Exit 1 on errors, 0 on warnings-only.
+- `python tools/check-drift.py` — sources that changed since the wiki last cited them. Exit 1 on drift.
+
+The list below is the spec those tools enforce — read it to understand what each finding means and how to fix it.
+
 Checks:
 1. **Broken links** — any `[[link]]` whose target file does not exist. Fix by creating a stub or correcting the link.
 2. **Orphan pages** — pages with zero inbound links (Obsidian backlinks). Either link them from a relevant page or move to `concepts/` if they are standalone.
-3. **Stub debt** — count pages with `status: stub` that are older than 7 days. List them in `index.md` under "Stubs awaiting fill".
-4. **Stale pages** — `last_updated` older than 90 days where the source file has changed since. Re-ingest.
-5. **Unresolved contradictions** — search `## Notes` sections for the marker `CONTRADICTION:` and surface them.
+3. **Stub debt** — pages with `status: stub` older than 7 days. List them in `index.md` under "Stubs awaiting fill".
+4. **Stale pages / source drift** — pages whose cited source has changed since `source_hashes` was last refreshed (drift), or whose `last_updated` is older than 90 days (age). Re-ingest the source, then run `tools/check-drift.py --update`.
+5. **Unresolved contradictions** — `CONTRADICTION:` marker in any page. Surface them; resolve only when adjudicated.
 6. **Missing frontmatter fields** — every page must have `type`, `name`, `status`, `last_updated`.
 
-Output a lint report (do not auto-fix structural issues without user confirmation), then append a `log.md` entry summarizing what was found and what was fixed.
+After running the tools, summarize findings to the user and append a `log.md` entry. Do not auto-fix structural issues without user confirmation.
 
 ## `index.md` rules
 
